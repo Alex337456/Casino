@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>Міні Казино</title>
+<style>
+body {
+    font-family: Arial;
+    background: #1e1e2f;
+    color: white;
+    text-align: center;
+}
+button {
+    padding: 10px;
+    margin: 5px;
+    cursor: pointer;
+}
+.game {
+    display: none;
+    margin-top: 20px;
+}
+.active {
+    display: block;
+}
+</style>
+</head>
+<body>
+
+<h1>🎰 Міні Казино</h1>
+<h2>Баланс: <span id="balance">1000</span> ₴</h2>
+
+<div>
+    <button onclick="showGame('dice')">Кості</button>
+    <button onclick="showGame('roulette')">Чорне / Червоне</button>
+    <button onclick="showGame('slots')">Слоти</button>
+</div>
+
+<!-- Кості -->
+<div id="dice" class="game active">
+    <h3>🎲 Кості</h3>
+    <input type="number" id="diceBet" placeholder="Ставка">
+    <button onclick="playDice()">Кинути</button>
+    <p id="diceResult"></p>
+</div>
+
+<!-- Рулетка -->
+<div id="roulette" class="game">
+    <h3>🔴⚫ Чорне / Червоне</h3>
+    <input type="number" id="rouletteBet" placeholder="Ставка">
+    <br>
+    <button onclick="playRoulette('red')">Червоне</button>
+    <button onclick="playRoulette('black')">Чорне</button>
+    <p id="rouletteResult"></p>
+</div>
+
+<!-- Слоти -->
+<div id="slots" class="game">
+    <h3>🎰 Слоти</h3>
+    <input type="number" id="slotsBet" placeholder="Ставка">
+    <button onclick="playSlots()">Крутити</button>
+    <p id="slotsResult"></p>
+</div>
+
+<script>
+let balance = 1000;
+
+function updateBalance() {
+    document.getElementById("balance").innerText = balance;
+}
+
+function showGame(game) {
+    document.querySelectorAll(".game").forEach(g => g.classList.remove("active"));
+    document.getElementById(game).classList.add("active");
+}
+
+// 🎲 Кості
+function playDice() {
+    let bet = parseInt(document.getElementById("diceBet").value);
+    if (!bet || bet <= 0 || bet > balance) return;
+
+    let player = Math.floor(Math.random() * 6) + 1;
+    let bot = Math.floor(Math.random() * 6) + 1;
+
+    if (player > bot) {
+        balance += Math.floor(bet * 0.9);
+        result = "Ти виграв! (" + player + " vs " + bot + ")";
+    } else {
+        balance -= bet;
+        result = "Ти програв (" + player + " vs " + bot + ")";
+    }
+
+    document.getElementById("diceResult").innerText = result;
+    updateBalance();
+}
+
+// 🔴⚫ Рулетка
+function playRoulette(choice) {
+    let bet = parseInt(document.getElementById("rouletteBet").value);
+    if (!bet || bet <= 0 || bet > balance) return;
+
+    let resultColor = Math.random() < 0.5 ? "red" : "black";
+
+    if (choice === resultColor) {
+        balance += Math.floor(bet * 0.9);
+        text = "Випало " + (resultColor === "red" ? "Червоне" : "Чорне") + " — ти виграв!";
+    } else {
+        balance -= bet;
+        text = "Випало " + (resultColor === "red" ? "Червоне" : "Чорне") + " — ти програв";
+    }
+
+    document.getElementById("rouletteResult").innerText = text;
+    updateBalance();
+}
+
+// 🎰 Слоти
+function playSlots() {
+    let bet = parseInt(document.getElementById("slotsBet").value);
+    if (!bet || bet <= 0 || bet > balance) return;
+
+    let symbols = ["🍒","🍋","🔔","⭐"];
+    let a = symbols[Math.floor(Math.random()*symbols.length)];
+    let b = symbols[Math.floor(Math.random()*symbols.length)];
+    let c = symbols[Math.floor(Math.random()*symbols.length)];
+
+    let result = a + " | " + b + " | " + c;
+
+    if (a === b && b === c) {
+        balance += Math.floor(bet * 2.7); // ~3x з урахуванням 0.9
+        text = result + " — Джекпот!";
+    } else if (a === b || b === c || a === c) {
+        balance += Math.floor(bet * 0.9);
+        text = result + " — Малий виграш";
+    } else {
+        balance -= bet;
+        text = result + " — Програш";
+    }
+
+    document.getElementById("slotsResult").innerText = text;
+    updateBalance();
+}
+</script>
+
+</body>
+</html>
